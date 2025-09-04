@@ -57,20 +57,9 @@ async function updateDashboard() {
         const media = resumo.mediaAtPorPU || 0;
         document.getElementById("kpi-media").textContent = media.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-        // Número de bairros (considerando filtros de ano e bairros)
-        let numBairros = 0;
-        try {
-            // preferível via fallback local; se indisponível, derive do top5 + API (não ideal)
-            if (typeof Data.getAllData === 'function') {
-                const yearNum = (typeof selectedAno === 'string' && selectedAno !== 'Todos os anos') ? Number(selectedAno) : selectedAno;
-                const baseSet = new Set(
-                    Data.getAllData()
-                        .filter(d => (selectedAno === "Todos os anos" || d.ano === yearNum) && (selectedBairros.length === 0 || selectedBairros.includes(d.bairro)))
-                        .map(d => d.bairro)
-                );
-                numBairros = baseSet.size;
-            }
-        } catch(_) {}
+        // Atualizar tabela e derivar número de bairros a partir dela
+        const tableData = await Data.getTable(selectedAno, selectedBairros);
+        const numBairros = new Set(tableData.map(r => r.bairro)).size;
         document.getElementById("kpi-bairros").textContent = numBairros.toLocaleString("pt-BR");
 
         // Update Charts
@@ -81,7 +70,7 @@ async function updateDashboard() {
         Charts.renderTopBairrosChart(topBairrosData);
 
         // Update Table
-        await updateDataTable(selectedAno, selectedBairros);
+        await updateDataTable(selectedAno, selectedBairros, tableData);
         document.getElementById('filtersFeedback').textContent = 'Filtros aplicados com sucesso.';
     } catch (err) {
         console.error('Erro ao atualizar dashboard:', err);
@@ -91,15 +80,15 @@ async function updateDashboard() {
 }
 
 let dataTableInstance;
-async function updateDataTable(ano, bairros) {
-    const tableData = await Data.getTable(ano, bairros);
+async function updateDataTable(ano, bairros, tableData) {
+    const data = tableData || await Data.getTable(ano, bairros);
 
     if (dataTableInstance) {
         dataTableInstance.destroy();
     }
 
     dataTableInstance = $("#data-table").DataTable({
-        data: tableData,
+        data,
         columns: [
             { title: "Ano", data: "ano" },
             { title: "Bairro", data: "bairro" },
