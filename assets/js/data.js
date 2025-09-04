@@ -69,29 +69,55 @@ const Data = (() => {
     }
 
     async function loadCsvFallback(){
-        return new Promise((resolve, reject) => {
-            const PapaLib = (typeof Papa !== 'undefined') ? Papa : (typeof PapaParse !== 'undefined' ? PapaParse : null);
-            if (!PapaLib || !PapaLib.parse) {
-                reject(new Error("PapaParse não disponível"));
+        const PapaLib = (typeof Papa !== 'undefined') ? Papa : (typeof PapaParse !== 'undefined' ? PapaParse : null);
+        if (!PapaLib || !PapaLib.parse) throw new Error("PapaParse não disponível");
+
+        const candidates = [
+            './atendimentos_pacientes_bairro_ano.csv',
+            '/atendimentos_pacientes_bairro_ano.csv',
+            'atendimentos_pacientes_bairro_ano.csv',
+        ];
+
+        let lastErr;
+        // 1) tentar fetch e parse de string (evita XHR interno da lib)
+        for (const url of candidates){
+            try{
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const text = await res.text();
+                const results = PapaLib.parse(text, { header: true, dynamicTyping: true });
+                if (!results || !results.data) throw new Error('CSV parse vazio');
+                allData = results.data.map(row => ({
+                    ano: row.Ano,
+                    bairro: normalizeBairro(row.Bairro_oficial),
+                    atendimentos: row.Atendimentos || 0,
+                    pacientes_unicos: row.Pacientes_unicos || 0
+                })).filter(row => row.ano && row.bairro);
+                processAndCacheData();
+                console.info('CSV carregado via', url);
                 return;
-            }
-            PapaLib.parse("./atendimentos_pacientes_bairro_ano.csv", {
-                download: true,
-                header: true,
-                dynamicTyping: true,
-                complete: (results) => {
-                    allData = results.data.map(row => ({
-                        ano: row.Ano,
-                        bairro: normalizeBairro(row.Bairro_oficial),
-                        atendimentos: row.Atendimentos || 0,
-                        pacientes_unicos: row.Pacientes_unicos || 0
-                    })).filter(row => row.ano && row.bairro);
-                    processAndCacheData();
-                    resolve();
-                },
-                error: (error) => reject(error)
-            });
-        });
+            }catch(err){ lastErr = err; console.warn('Falha CSV em', url, err?.message || err); }
+        }
+
+        // 2) fallback GitHub raw
+        try{
+            const rawUrl = 'https://raw.githubusercontent.com/vmvaz1935/heatmap/main/atendimentos_pacientes_bairro_ano.csv';
+            const res = await fetch(rawUrl, { cache: 'no-store' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const text = await res.text();
+            const results = PapaLib.parse(text, { header: true, dynamicTyping: true });
+            allData = results.data.map(row => ({
+                ano: row.Ano,
+                bairro: normalizeBairro(row.Bairro_oficial),
+                atendimentos: row.Atendimentos || 0,
+                pacientes_unicos: row.Pacientes_unicos || 0
+            })).filter(row => row.ano && row.bairro);
+            processAndCacheData();
+            console.info('CSV carregado via GitHub raw');
+            return;
+        }catch(err){ lastErr = err; }
+
+        throw lastErr || new Error('Não foi possível carregar o CSV');
     }
 
     return {
