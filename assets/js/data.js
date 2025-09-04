@@ -75,7 +75,7 @@ const Data = (() => {
                 reject(new Error("PapaParse não disponível"));
                 return;
             }
-            PapaLib.parse("atendimentos_pacientes_bairro_ano.csv", {
+            PapaLib.parse("./atendimentos_pacientes_bairro_ano.csv", {
                 download: true,
                 header: true,
                 dynamicTyping: true,
