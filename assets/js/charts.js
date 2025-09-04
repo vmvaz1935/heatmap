@@ -15,15 +15,20 @@ const Charts = (() => {
                     {
                         label: "Atendimentos",
                         data: Object.values(data),
-                        borderColor: "#007bff",
-                        backgroundColor: "rgba(0, 123, 255, 0.1)",
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || "#0d6efd",
+                        backgroundColor: "rgba(13, 110, 253, 0.15)",
                         fill: true,
+                        tension: 0.35,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
                     },
                 ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                parsing: false,
+                animation: false,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -40,6 +45,7 @@ const Charts = (() => {
                     },
                 },
                 plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true } },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -49,6 +55,17 @@ const Charts = (() => {
                     }
                 }
             },
+            plugins: [{
+                id: 'decimate',
+                beforeElementsUpdate(c){
+                    c.data.datasets.forEach(ds=>{
+                        if(Array.isArray(ds.data) && ds.data.length>1000){
+                            const step=Math.ceil(ds.data.length/600);
+                            ds.data=ds.data.filter((_,i)=>i%step===0);
+                        }
+                    });
+                }
+            }]
         });
     };
 
@@ -65,8 +82,8 @@ const Charts = (() => {
                     {
                         label: "Atendimentos",
                         data: data.map((item) => item[1].at),
-                        backgroundColor: "rgba(40, 167, 69, 0.7)",
-                        borderColor: "rgba(40, 167, 69, 1)",
+                        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || "rgba(40, 167, 69, 0.7)",
+                        borderColor: "transparent",
                         borderWidth: 1,
                     },
                 ],
@@ -75,6 +92,8 @@ const Charts = (() => {
                 responsive: true,
                 maintainAspectRatio: false,
                 indexAxis: "y", // Horizontal bar chart
+                parsing: false,
+                animation: false,
                 scales: {
                     x: {
                         beginAtZero: true,
@@ -91,6 +110,7 @@ const Charts = (() => {
                     },
                 },
                 plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true } },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -100,6 +120,17 @@ const Charts = (() => {
                     }
                 }
             },
+            plugins: [{
+                id: 'decimate',
+                beforeElementsUpdate(c){
+                    c.data.datasets.forEach(ds=>{
+                        if(Array.isArray(ds.data) && ds.data.length>1000){
+                            const step=Math.ceil(ds.data.length/600);
+                            ds.data=ds.data.filter((_,i)=>i%step===0);
+                        }
+                    });
+                }
+            }]
         });
     };
 

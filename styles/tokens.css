@@ -1,0 +1,46 @@
+:root{
+  /* Core palette - dark on light with AA contrast */
+  --color-bg:#0b1020;
+  --color-surface:#12162a;
+  --color-surface-2:#1a1f36;
+  --color-primary:#2aa198; /* teal */
+  --color-accent:#b58900;  /* amber */
+  --color-text:#e6e8ee;
+  --color-muted:#9aa3b2;
+  --color-success:#2ecc71;
+  --color-danger:#e74c3c;
+
+  /* Typography */
+  --font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-size-base:16px;
+  --line-height-base:1.6;
+  --font-weight-regular:400;
+  --font-weight-semibold:600;
+  --font-weight-bold:700;
+
+  /* Spacing scale */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px; --space-7:28px; --space-8:32px; --space-10:40px;
+
+  /* Radius and elevation */
+  --radius-sm:8px;
+  --radius:16px;
+  --radius-lg:24px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.18);
+  --shadow:0 6px 18px rgba(0,0,0,.25);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.35);
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    --color-bg:#f7f9fc;
+    --color-surface:#ffffff;
+    --color-surface-2:#f1f3f9;
+    --color-primary:#0d6efd;
+    --color-accent:#b58900;
+    --color-text:#101828;
+    --color-muted:#667085;
+  }
+}
+
+

@@ -30,8 +30,9 @@ function populateFilters() {
 }
 
 function setupEventListeners() {
-    document.getElementById("ano-select").addEventListener("change", updateDashboard);
-    document.getElementById("bairro-select").addEventListener("change", updateDashboard);
+    const debouncedUpdate = debounce(updateDashboard, 200);
+    document.getElementById("ano-select").addEventListener("change", debouncedUpdate);
+    document.getElementById("bairro-select").addEventListener("change", debouncedUpdate);
     document.getElementById("reset-filters").addEventListener("click", resetFilters);
 }
 
@@ -151,8 +152,12 @@ function updateDataTable(ano, bairros) {
         responsive: true,
         order: [[4, "desc"], [5, "desc"]], // Order by Delta Atendimentos (abs) then Delta %
         language: {
-            url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json"
-        }
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json",
+            emptyTable: "Sem resultados para os filtros atuais.",
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros"
+        },
+        dom: 'frtip'
     });
 }
 
@@ -167,3 +172,12 @@ function exportToPdf() {
 
 
 console.log("app.js carregado!");
+
+// Utils
+function debounce(fn, wait){
+    let t;
+    return function(...args){
+        clearTimeout(t);
+        t = setTimeout(()=>fn.apply(this, args), wait);
+    };
+}
