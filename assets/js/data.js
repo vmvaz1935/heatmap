@@ -25,7 +25,13 @@ const Data = (() => {
     // Carregar e processar CSV
     const loadCsv = async () => {
         return new Promise((resolve, reject) => {
-            PapaParse.parse("atendimentos_pacientes_bairro_ano.csv", {
+            const PapaLib = (typeof Papa !== 'undefined') ? Papa : (typeof PapaParse !== 'undefined' ? PapaParse : null);
+            if (!PapaLib || !PapaLib.parse) {
+                console.error("Biblioteca PapaParse/Papa não carregada");
+                reject(new Error("PapaParse não disponível"));
+                return;
+            }
+            PapaLib.parse("atendimentos_pacientes_bairro_ano.csv", {
                 download: true,
                 header: true,
                 dynamicTyping: true,
@@ -137,7 +143,9 @@ const Data = (() => {
         getAnos: () => processedData.years,
         getBairros: () => [...new Set(allData.map(d => d.bairro))].sort(),
         getResumo: (year) => {
-            const data = year === "Todos os anos" ? allData : allData.filter(d => d.ano === year);
+            const isAll = year === "Todos os anos";
+            const yearNum = isAll ? null : (typeof year === 'string' ? Number(year) : year);
+            const data = isAll ? allData : allData.filter(d => d.ano === yearNum);
             const atTotal = data.reduce((sum, d) => sum + d.atendimentos, 0);
             const puTotal = data.reduce((sum, d) => sum + d.pacientes_unicos, 0);
             

@@ -18,8 +18,8 @@ function populateFilters() {
     const todosAnosOption = document.createElement("option");
     todosAnosOption.value = "Todos os anos";
     todosAnosOption.textContent = "Todos os anos";
-    todosAnosOption.selected = true;
-    anoSelect.appendChild(todosAnosOption);
+    anoSelect.insertBefore(todosAnosOption, anoSelect.firstChild);
+    anoSelect.value = "Todos os anos";
 
     Data.getBairros().forEach(bairro => {
         const option = document.createElement("option");
@@ -73,7 +73,8 @@ let dataTableInstance;
 function updateDataTable(ano, bairros) {
     const allData = Data.getAllData();
     let filteredData = allData.filter(d => {
-        const matchesYear = (ano === "Todos os anos" || d.ano === ano);
+        const yearMatchValue = (typeof ano === 'string' && ano !== 'Todos os anos') ? Number(ano) : ano;
+        const matchesYear = (ano === "Todos os anos" || d.ano === yearMatchValue);
         const matchesBairro = (bairros.length === 0 || bairros.includes(d.bairro));
         return matchesYear && matchesBairro;
     });
