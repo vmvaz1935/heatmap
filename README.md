@@ -12,6 +12,7 @@ Este repositório contém um dashboard interativo para análise de atendimentos 
 - `assets/js/data.js`: Script JavaScript para carregamento e processamento dos dados.
 - `assets/js/charts.js`: Script JavaScript para renderização dos gráficos.
 - `assets/js/app.js`: Script JavaScript principal para a lógica do dashboard.
+- `backend/`: API FastAPI para servir dados agregados do CSV (opcional).
 
 ## Como Visualizar o Dashboard
 
@@ -20,9 +21,26 @@ Para visualizar o dashboard, você pode:
 1.  **Abrir diretamente no navegador:** Baixe todos os arquivos e abra o arquivo `index.html` em seu navegador.
 2.  **Servir localmente com um servidor HTTP:**
     - Certifique-se de ter Python instalado.
-    - Navegue até a pasta `fisioterapia_dashboard_github` no terminal.
+    - Navegue até a pasta do projeto no terminal.
     - Execute o comando: `python3 -m http.server 8000`
     - Abra seu navegador e acesse: `http://localhost:8000/`
+
+### Rodar o backend (opcional, recomendado)
+```
+cd backend
+python -m venv .venv
+.venv\Scripts\activate (Windows) ou source .venv/bin/activate (Linux/Mac)
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+
+Endpoints principais:
+- GET `/health`
+- GET `/years`
+- GET `/neighborhoods`
+- GET `/summary?year=2024`
+- GET `/atendimentos-ano?bairros=Bairro1,Bairro2`
+- GET `/table?year=2024&bairros=Bairro1,Bairro2`
 
 ## Como Implantar no GitHub Pages
 
