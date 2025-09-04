@@ -21,7 +21,7 @@
 
 ## Snippets aplicados
 - Tokens: `styles/tokens.css` e utilitários `styles/theme.css` linkados em `index.html`.
-- Filtros acessíveis em `index.html` com IDs compatíveis com `assets/js/app.js`.
+- Filtros acessíveis em `index.html` com IDs compatíveis com `assets/js/app.js` e `aria-live`.
 - Chart.js: legend bottom, tooltip pt-BR, decimation.
 - DataTables: responsive + i18n pt-BR, mensagens de vazio, dom simplificado.
 - Mapa: roles/atalho de foco e zoom control.

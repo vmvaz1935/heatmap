@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Fisioterapia - Análise de Atendimentos</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://code.jquery.com">
+    <link rel="preconnect" href="https://cdn.datatables.net">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles/tokens.css">
     <link rel="stylesheet" href="styles/theme.css">
@@ -78,9 +80,7 @@
             <form id="filtersForm">
                 <div>
                     <label for="ano-select">Ano</label>
-                    <select id="ano-select" name="ano">
-                        <option value="Todos os anos" selected>Todos os anos</option>
-                    </select>
+                    <select id="ano-select" name="ano"></select>
                 </div>
                 <div>
                     <label for="bairro-select">Bairro</label>
@@ -98,13 +98,13 @@
         <div class="row mb-4">
             <div class="col-md-3">
                 <div class="kpi-card text-center">
-                    <div class="kpi-number" id="total-atendimentos">116.067</div>
+                    <div class="kpi-number" id="kpi-atendimentos">116.067</div>
                     <div class="kpi-label">Total de Atendimentos</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="kpi-card text-center">
-                    <div class="kpi-number" id="total-pacientes">6.113</div>
+                    <div class="kpi-number" id="kpi-pacientes">6.113</div>
                     <div class="kpi-label">Total de Pacientes Únicos</div>
                 </div>
             </div>
