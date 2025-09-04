@@ -53,6 +53,17 @@ function updateDashboard() {
     const resumo = Data.getResumo(selectedAno);
     document.getElementById("kpi-atendimentos").textContent = resumo.atTotal.toLocaleString("pt-BR");
     document.getElementById("kpi-pacientes").textContent = resumo.puTotal.toLocaleString("pt-BR");
+    const media = resumo.mediaAtPorPU || 0;
+    document.getElementById("kpi-media").textContent = media.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+    // Número de bairros (considerando filtros de ano e bairros)
+    const yearNum = (typeof selectedAno === 'string' && selectedAno !== 'Todos os anos') ? Number(selectedAno) : selectedAno;
+    const baseSet = new Set(
+        Data.getAllData()
+            .filter(d => (selectedAno === "Todos os anos" || d.ano === yearNum) && (selectedBairros.length === 0 || selectedBairros.includes(d.bairro)))
+            .map(d => d.bairro)
+    );
+    document.getElementById("kpi-bairros").textContent = baseSet.size.toLocaleString("pt-BR");
 
     // Update Charts
     const atendimentosPorAno = {};

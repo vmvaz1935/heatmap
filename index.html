@@ -98,25 +98,25 @@
         <div class="row mb-4">
             <div class="col-md-3">
                 <div class="kpi-card text-center">
-                    <div class="kpi-number" id="kpi-atendimentos">116.067</div>
+                    <div class="kpi-number" id="kpi-atendimentos">0</div>
                     <div class="kpi-label">Total de Atendimentos</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="kpi-card text-center">
-                    <div class="kpi-number" id="kpi-pacientes">6.113</div>
+                    <div class="kpi-number" id="kpi-pacientes">0</div>
                     <div class="kpi-label">Total de Pacientes Únicos</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="kpi-card text-center">
-                    <div class="kpi-number" id="media-atendimentos">19,0</div>
-                    <div class="kpi-label">Média Atendimentos/Paciente</div>
+                    <div class="kpi-number" id="kpi-media">0</div>
+                    <div class="kpi-label">Média Atend./Paciente</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="kpi-card text-center">
-                    <div class="kpi-number" id="total-bairros">96</div>
+                    <div class="kpi-number" id="kpi-bairros">0</div>
                     <div class="kpi-label">Bairros Atendidos</div>
                 </div>
             </div>
@@ -159,65 +159,7 @@
             </div>
         </div>
 
-        <!-- Análise YoY -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-arrow-up text-success"></i> Maiores Crescimentos 2023-2024</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm" role="table">
-                                <thead>
-                                    <tr>
-                                        <th>Bairro</th>
-                                        <th>2023</th>
-                                        <th>2024</th>
-                                        <th>Crescimento</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="crescimentos-tbody">
-                                    <tr><td>JD PAULISTA</td><td>7.234</td><td>8.971</td><td class="text-success">+24,0%</td></tr>
-                                    <tr><td>CONSOLAÇÃO</td><td>5.892</td><td>6.879</td><td class="text-success">+16,7%</td></tr>
-                                    <tr><td>VILA MARIANA</td><td>3.012</td><td>3.510</td><td class="text-success">+16,5%</td></tr>
-                                    <tr><td>PINHEIROS</td><td>2.456</td><td>2.834</td><td class="text-success">+15,4%</td></tr>
-                                    <tr><td>ITAIM BIBI</td><td>1.123</td><td>1.287</td><td class="text-success">+14,6%</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-arrow-down text-danger"></i> Maiores Quedas 2023-2024</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm" role="table">
-                                <thead>
-                                    <tr>
-                                        <th>Bairro</th>
-                                        <th>2023</th>
-                                        <th>2024</th>
-                                        <th>Variação</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="quedas-tbody">
-                                    <tr><td>CAMPO BELO</td><td>456</td><td>389</td><td class="text-danger">-14,7%</td></tr>
-                                    <tr><td>MOOCA</td><td>234</td><td>201</td><td class="text-danger">-14,1%</td></tr>
-                                    <tr><td>TATUAPÉ</td><td>345</td><td>298</td><td class="text-danger">-13,6%</td></tr>
-                                    <tr><td>SANTANA</td><td>189</td><td>165</td><td class="text-danger">-12,7%</td></tr>
-                                    <tr><td>LAPA</td><td>167</td><td>147</td><td class="text-danger">-12,0%</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Análise YoY removida: será derivada futuramente do CSV -->
 
         <!-- Tabela Detalhada -->
         <div class="row">
@@ -231,11 +173,12 @@
                             <table id="data-table" class="table table-striped table-hover" role="table">
                                 <thead>
                                     <tr>
-                                        <th>Ranking</th>
+                                        <th>Ano</th>
                                         <th>Bairro</th>
-                                        <th>Total Atendimentos</th>
-                                        <th>Total Pacientes</th>
-                                        <th>Média Atend./Paciente</th>
+                                        <th>Atendimentos</th>
+                                        <th>Pacientes Únicos</th>
+                                        <th>Δ Atendimentos</th>
+                                        <th>Δ %</th>
                                         <th>Participação (%)</th>
                                     </tr>
                                 </thead>
