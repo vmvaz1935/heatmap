@@ -46,34 +46,48 @@ async function resetFilters() {
 }
 
 async function updateDashboard() {
-    const selectedAno = document.getElementById("ano-select").value;
-    const selectedBairros = Array.from(document.getElementById("bairro-select").selectedOptions).map(option => option.value);
+    try {
+        const selectedAno = document.getElementById("ano-select").value;
+        const selectedBairros = Array.from(document.getElementById("bairro-select").selectedOptions).map(option => option.value);
 
-    // Update KPIs
-    const resumo = await Data.getResumo(selectedAno);
-    document.getElementById("kpi-atendimentos").textContent = resumo.atTotal.toLocaleString("pt-BR");
-    document.getElementById("kpi-pacientes").textContent = resumo.puTotal.toLocaleString("pt-BR");
-    const media = resumo.mediaAtPorPU || 0;
-    document.getElementById("kpi-media").textContent = media.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        // Update KPIs
+        const resumo = await Data.getResumo(selectedAno);
+        document.getElementById("kpi-atendimentos").textContent = resumo.atTotal.toLocaleString("pt-BR");
+        document.getElementById("kpi-pacientes").textContent = resumo.puTotal.toLocaleString("pt-BR");
+        const media = resumo.mediaAtPorPU || 0;
+        document.getElementById("kpi-media").textContent = media.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-    // Número de bairros (considerando filtros de ano e bairros)
-    const yearNum = (typeof selectedAno === 'string' && selectedAno !== 'Todos os anos') ? Number(selectedAno) : selectedAno;
-    const baseSet = new Set(
-        Data.getAllData()
-            .filter(d => (selectedAno === "Todos os anos" || d.ano === yearNum) && (selectedBairros.length === 0 || selectedBairros.includes(d.bairro)))
-            .map(d => d.bairro)
-    );
-    document.getElementById("kpi-bairros").textContent = baseSet.size.toLocaleString("pt-BR");
+        // Número de bairros (considerando filtros de ano e bairros)
+        let numBairros = 0;
+        try {
+            // preferível via fallback local; se indisponível, derive do top5 + API (não ideal)
+            if (typeof Data.getAllData === 'function') {
+                const yearNum = (typeof selectedAno === 'string' && selectedAno !== 'Todos os anos') ? Number(selectedAno) : selectedAno;
+                const baseSet = new Set(
+                    Data.getAllData()
+                        .filter(d => (selectedAno === "Todos os anos" || d.ano === yearNum) && (selectedBairros.length === 0 || selectedBairros.includes(d.bairro)))
+                        .map(d => d.bairro)
+                );
+                numBairros = baseSet.size;
+            }
+        } catch(_) {}
+        document.getElementById("kpi-bairros").textContent = numBairros.toLocaleString("pt-BR");
 
-    // Update Charts
-    const atendimentosPorAno = await Data.getAtendimentosAno(selectedBairros);
-    Charts.renderAtendimentosChart(atendimentosPorAno);
+        // Update Charts
+        const atendimentosPorAno = await Data.getAtendimentosAno(selectedBairros);
+        Charts.renderAtendimentosChart(atendimentosPorAno);
 
-    const topBairrosData = await Data.getTopBairros(selectedAno);
-    Charts.renderTopBairrosChart(topBairrosData);
+        const topBairrosData = await Data.getTopBairros(selectedAno);
+        Charts.renderTopBairrosChart(topBairrosData);
 
-    // Update Table
-    await updateDataTable(selectedAno, selectedBairros);
+        // Update Table
+        await updateDataTable(selectedAno, selectedBairros);
+        document.getElementById('filtersFeedback').textContent = 'Filtros aplicados com sucesso.';
+    } catch (err) {
+        console.error('Erro ao atualizar dashboard:', err);
+        const fb = document.getElementById('filtersFeedback');
+        if (fb) fb.textContent = 'Erro ao atualizar o dashboard. Tente recarregar a página.';
+    }
 }
 
 let dataTableInstance;
