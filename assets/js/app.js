@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
     await Data.init();
     populateFilters();
-    updateDashboard();
+    await updateDashboard();
     setupEventListeners();
 });
 
@@ -30,27 +30,27 @@ function populateFilters() {
 }
 
 function setupEventListeners() {
-    const debouncedUpdate = debounce(updateDashboard, 200);
+    const debouncedUpdate = debounce(() => updateDashboard(), 200);
     document.getElementById("ano-select").addEventListener("change", debouncedUpdate);
     document.getElementById("bairro-select").addEventListener("change", debouncedUpdate);
     document.getElementById("reset-filters").addEventListener("click", resetFilters);
 }
 
-function resetFilters() {
+async function resetFilters() {
     document.getElementById("ano-select").value = "Todos os anos";
     const bairroSelect = document.getElementById("bairro-select");
     Array.from(bairroSelect.options).forEach(option => {
         option.selected = false;
     });
-    updateDashboard();
+    await updateDashboard();
 }
 
-function updateDashboard() {
+async function updateDashboard() {
     const selectedAno = document.getElementById("ano-select").value;
     const selectedBairros = Array.from(document.getElementById("bairro-select").selectedOptions).map(option => option.value);
 
     // Update KPIs
-    const resumo = Data.getResumo(selectedAno);
+    const resumo = await Data.getResumo(selectedAno);
     document.getElementById("kpi-atendimentos").textContent = resumo.atTotal.toLocaleString("pt-BR");
     document.getElementById("kpi-pacientes").textContent = resumo.puTotal.toLocaleString("pt-BR");
     const media = resumo.mediaAtPorPU || 0;
@@ -66,73 +66,19 @@ function updateDashboard() {
     document.getElementById("kpi-bairros").textContent = baseSet.size.toLocaleString("pt-BR");
 
     // Update Charts
-    const atendimentosPorAno = {};
-    Data.getAnos().forEach(ano => {
-        const yearData = Data.getAllData().filter(d => d.ano === ano && (selectedBairros.length === 0 || selectedBairros.includes(d.bairro)));
-        atendimentosPorAno[ano] = yearData.reduce((sum, d) => sum + d.atendimentos, 0);
-    });
+    const atendimentosPorAno = await Data.getAtendimentosAno(selectedBairros);
     Charts.renderAtendimentosChart(atendimentosPorAno);
 
-    const topBairrosData = Data.getResumo(selectedAno).top5Bairros;
+    const topBairrosData = await Data.getTopBairros(selectedAno);
     Charts.renderTopBairrosChart(topBairrosData);
 
     // Update Table
-    updateDataTable(selectedAno, selectedBairros);
+    await updateDataTable(selectedAno, selectedBairros);
 }
 
 let dataTableInstance;
-function updateDataTable(ano, bairros) {
-    const allData = Data.getAllData();
-    let filteredData = allData.filter(d => {
-        const yearMatchValue = (typeof ano === 'string' && ano !== 'Todos os anos') ? Number(ano) : ano;
-        const matchesYear = (ano === "Todos os anos" || d.ano === yearMatchValue);
-        const matchesBairro = (bairros.length === 0 || bairros.includes(d.bairro));
-        return matchesYear && matchesBairro;
-    });
-
-    // Aggregate by bairro for the table
-    const aggregatedData = {};
-    filteredData.forEach(item => {
-        const key = `${item.ano}-${item.bairro}`;
-        if (!aggregatedData[key]) {
-            aggregatedData[key] = { ano: item.ano, bairro: item.bairro, atendimentos: 0, pacientes_unicos: 0 };
-        }
-        aggregatedData[key].atendimentos += item.atendimentos;
-        aggregatedData[key].pacientes_unicos += item.pacientes_unicos;
-    });
-
-    const tableData = Object.values(aggregatedData).map(item => {
-        const serieBairro = Data.getSerieBairro(item.bairro);
-        const currentYearData = serieBairro.find(d => d.ano === item.ano);
-        const previousYearData = serieBairro.find(d => d.ano === item.ano - 1);
-
-        let deltaAt = "-";
-        let deltaAtPercent = "-";
-        if (currentYearData && previousYearData) {
-            deltaAt = currentYearData.at - previousYearData.at;
-            if (previousYearData.at !== 0) {
-                deltaAtPercent = ((deltaAt / previousYearData.at) * 100).toFixed(2) + "%";
-            } else {
-                deltaAtPercent = "NA (sem base)";
-            }
-        } else if (currentYearData && !previousYearData && item.ano !== "Todos os anos") {
-            deltaAt = currentYearData.at;
-            deltaAtPercent = "NA (sem base)";
-        }
-
-        const totalAtendimentosAno = Data.getResumo(item.ano).atTotal;
-        const participacao = totalAtendimentosAno > 0 ? ((item.atendimentos / totalAtendimentosAno) * 100).toFixed(2) + "%" : "0.00%";
-
-        return {
-            ano: item.ano,
-            bairro: item.bairro,
-            atendimentos: item.atendimentos,
-            pacientes_unicos: item.pacientes_unicos,
-            deltaAt: deltaAt,
-            deltaAtPercent: deltaAtPercent,
-            participacao: participacao
-        };
-    });
+async function updateDataTable(ano, bairros) {
+    const tableData = await Data.getTable(ano, bairros);
 
     if (dataTableInstance) {
         dataTableInstance.destroy();
