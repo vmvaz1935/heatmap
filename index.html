@@ -12,55 +12,55 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <style>
         .kpi-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background: var(--color-surface);
+            color: var(--color-text);
+            border-radius: var(--radius);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+            box-shadow: var(--shadow);
         }
         .kpi-number {
-            font-size: 2.8rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 2.2rem;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-2);
         }
         .kpi-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1rem;
+            color: var(--color-muted);
         }
         .chart-container {
             position: relative;
             height: 400px;
-            margin-bottom: 30px;
+            margin-bottom: var(--space-6);
         }
         .card {
             border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
         }
         .card-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-bottom: 2px solid #dee2e6;
+            background: var(--color-surface-2);
+            border-bottom: 2px solid rgba(255,255,255,.06);
             font-weight: 600;
         }
         .table th {
-            background-color: #f8f9fa;
+            background-color: var(--color-surface-2);
             font-weight: 600;
         }
         .btn-map {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: var(--color-primary);
             border: none;
-            border-radius: 25px;
+            border-radius: 9999px;
             padding: 12px 25px;
             font-weight: 600;
-            color: white;
+            color: #fff;
             text-decoration: none;
             display: inline-block;
             transition: transform 0.2s;
         }
         .btn-map:hover {
             transform: translateY(-2px);
-            color: white;
+            color: #fff;
         }
     </style>
 </head>
