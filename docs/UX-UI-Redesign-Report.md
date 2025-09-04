@@ -24,7 +24,7 @@
 - Filtros acessíveis em `index.html` com IDs compatíveis com `assets/js/app.js` e `aria-live`.
 - Chart.js: legend bottom, tooltip pt-BR, decimation.
 - DataTables: responsive + i18n pt-BR, mensagens de vazio, dom simplificado.
-- Mapa: roles/atalho de foco e zoom control.
+- Mapa: roles/atalho de foco, zoom control e opção de marker clustering (toggle) via CDN leve.
 
 ## Acessibilidade (WCAG 2.1 AA)
 - Contraste ≥ 4.5:1 com tokens; validar com ferramenta de contraste.
