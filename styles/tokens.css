@@ -1,46 +1,75 @@
-:root{
-  /* Core palette - dark on light with AA contrast */
-  --color-bg:#0b1020;
-  --color-surface:#12162a;
-  --color-surface-2:#1a1f36;
-  --color-primary:#2aa198; /* teal */
-  --color-accent:#b58900;  /* amber */
-  --color-text:#e6e8ee;
-  --color-muted:#9aa3b2;
-  --color-success:#2ecc71;
-  --color-danger:#e74c3c;
+:root {
+  /* Core palette */
+  --color-bg: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #e8edf6;
+  --color-surface-3: #dae3f3;
+  --color-border: rgba(15, 95, 138, 0.12);
+  --color-primary: #0f5f8a;
+  --color-primary-soft: #d3e7f4;
+  --color-accent: #2fb380;
+  --color-accent-soft: #dbf5eb;
+  --color-danger: #d9534f;
+  --color-danger-soft: #fbe3e2;
+  --color-warning: #f1b44c;
+  --color-text: #1f2430;
+  --color-text-soft: #3e485b;
+  --color-muted: #6b7280;
+  --color-link: #0f5f8a;
 
   /* Typography */
-  --font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  --font-size-base:16px;
-  --line-height-base:1.6;
-  --font-weight-regular:400;
-  --font-weight-semibold:600;
-  --font-weight-bold:700;
+  --font-family-heading: "Poppins", "Montserrat", "Segoe UI", sans-serif;
+  --font-family-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 17px;
+  --line-height-base: 1.6;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
   /* Spacing scale */
-  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
-  --space-5:20px; --space-6:24px; --space-7:28px; --space-8:32px; --space-10:40px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
 
   /* Radius and elevation */
-  --radius-sm:8px;
-  --radius:16px;
-  --radius-lg:24px;
-  --shadow-sm:0 2px 8px rgba(0,0,0,.18);
-  --shadow:0 6px 18px rgba(0,0,0,.25);
-  --shadow-lg:0 10px 30px rgba(0,0,0,.35);
+  --radius-sm: 8px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 4px 16px rgba(10, 31, 68, 0.08);
+  --shadow: 0 12px 32px rgba(11, 46, 86, 0.12);
+  --shadow-lg: 0 24px 48px rgba(11, 46, 86, 0.14);
+
+  --transition: 0.2s ease;
 }
 
-@media (prefers-color-scheme: light){
-  :root{
-    --color-bg:#f7f9fc;
-    --color-surface:#ffffff;
-    --color-surface-2:#f1f3f9;
-    --color-primary:#0d6efd;
-    --color-accent:#b58900;
-    --color-text:#101828;
-    --color-muted:#667085;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0b1020;
+    --color-surface: #12172b;
+    --color-surface-2: #1d2440;
+    --color-surface-3: #243057;
+    --color-border: rgba(205, 221, 239, 0.08);
+    --color-primary: #3fa8dc;
+    --color-primary-soft: rgba(63, 168, 220, 0.16);
+    --color-accent: #3ad99f;
+    --color-accent-soft: rgba(58, 217, 159, 0.12);
+    --color-danger: #ff6b6b;
+    --color-danger-soft: rgba(255, 107, 107, 0.12);
+    --color-warning: #ffd166;
+    --color-text: #e6e9f3;
+    --color-text-soft: #c2c8d6;
+    --color-muted: #94a0be;
+    --color-link: #81c7f2;
+    --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.55);
   }
 }
-
-

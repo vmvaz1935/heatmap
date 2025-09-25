@@ -139,24 +139,67 @@ const Data = (() => {
         },
         getAnos: () => cache.anos,
         getBairros: () => cache.bairros,
-        getResumo: async (year) => {
+        getResumo: async (year, bairros = []) => {
             if (useApi) {
-                const url = year && year !== "Todos os anos" ? `${API_BASE}/summary?year=${encodeURIComponent(Number(year))}` : `${API_BASE}/summary`;
+                const params = [];
+                if (year && year !== "Todos os anos") params.push(`year=${encodeURIComponent(Number(year))}`);
+                if (bairros.length > 0) params.push(`bairros=${encodeURIComponent(bairros.join(','))}`);
+                const url = `${API_BASE}/summary${params.length ? `?${params.join('&')}` : ''}`;
                 return getJson(url);
             }
             const isAll = year === "Todos os anos" || !year;
             const yearNum = isAll ? null : (typeof year === 'string' ? Number(year) : year);
-            const data = isAll ? allData : allData.filter(d => d.ano === yearNum);
-            const atTotal = data.reduce((sum, d) => sum + d.atendimentos, 0);
-            const puTotal = data.reduce((sum, d) => sum + d.pacientes_unicos, 0);
+            const bairrosSet = bairros.length ? new Set(bairros) : null;
+
+            const baseFilter = (row, targetYear = null) => {
+                const byYear = targetYear === null ? (isAll || row.ano === yearNum) : row.ano === targetYear;
+                const byBairro = !bairrosSet || bairrosSet.has(row.bairro);
+                return byYear && byBairro;
+            };
+
+            const currentData = allData.filter(row => baseFilter(row));
+            const atTotal = currentData.reduce((sum, d) => sum + d.atendimentos, 0);
+            const puTotal = currentData.reduce((sum, d) => sum + d.pacientes_unicos, 0);
+
+            let yoyAtValue = null;
+            let yoyAtPercent = null;
+            let yoyPuValue = null;
+            let yoyPuPercent = null;
+            let hasComparison = false;
+
+            if (!isAll) {
+                const previousYear = yearNum - 1;
+                const previousData = allData.filter(row => baseFilter(row, previousYear));
+                const prevAt = previousData.reduce((sum, d) => sum + d.atendimentos, 0);
+                const prevPu = previousData.reduce((sum, d) => sum + d.pacientes_unicos, 0);
+                hasComparison = previousData.length > 0;
+                if (hasComparison) {
+                    yoyAtValue = atTotal - prevAt;
+                    yoyAtPercent = prevAt > 0 ? (yoyAtValue / prevAt) * 100 : null;
+                    yoyPuValue = puTotal - prevPu;
+                    yoyPuPercent = prevPu > 0 ? (yoyPuValue / prevPu) * 100 : null;
+                }
+            }
+
             const bairroAtPu = {};
-            data.forEach(d => {
+            currentData.forEach(d => {
                 if (!bairroAtPu[d.bairro]) bairroAtPu[d.bairro] = { at: 0, pu: 0 };
                 bairroAtPu[d.bairro].at += d.atendimentos;
                 bairroAtPu[d.bairro].pu += d.pacientes_unicos;
             });
-            const top5Bairros = Object.entries(bairroAtPu).sort(([, a], [, b]) => b.at - a.at).slice(0, 5).map(([k, v]) => [k, v]);
-            return { atTotal, puTotal, mediaAtPorPU: puTotal > 0 ? (atTotal / puTotal) : 0, top5Bairros };
+            const top5Bairros = Object.entries(bairroAtPu)
+                .sort(([, a], [, b]) => b.at - a.at)
+                .slice(0, 5)
+                .map(([bairro, valores]) => ({ bairro, atendimentos: valores.at, pacientes: valores.pu }));
+
+            return {
+                atTotal,
+                puTotal,
+                mediaAtPorPU: puTotal > 0 ? (atTotal / puTotal) : 0,
+                top5Bairros,
+                yoyAtendimentos: { value: yoyAtValue, percent: yoyAtPercent, hasComparison },
+                yoyPacientes: { value: yoyPuValue, percent: yoyPuPercent, hasComparison }
+            };
         },
         getAtendimentosAno: async (bairros = []) => {
             if (useApi) {
@@ -172,21 +215,34 @@ const Data = (() => {
             });
             return result;
         },
-        getTopBairros: async (year) => {
+        getTopBairros: async (year, bairros = []) => {
             if (useApi) {
-                const url = year && year !== "Todos os anos" ? `${API_BASE}/top-bairros?year=${encodeURIComponent(Number(year))}` : `${API_BASE}/top-bairros`;
+                const params = [];
+                if (year && year !== "Todos os anos") params.push(`year=${encodeURIComponent(Number(year))}`);
+                if (bairros.length > 0) params.push(`bairros=${encodeURIComponent(bairros.join(','))}`);
+                const url = `${API_BASE}/top-bairros${params.length ? `?${params.join('&')}` : ''}`;
                 return getJson(url);
             }
             const isAll = year === "Todos os anos" || !year;
             const yearNum = isAll ? null : (typeof year === 'string' ? Number(year) : year);
-            const data = isAll ? allData : allData.filter(d => d.ano === yearNum);
-            const by = {};
+            const bairrosSet = bairros.length ? new Set(bairros) : null;
+            const data = allData.filter(d => (isAll || d.ano === yearNum) && (!bairrosSet || bairrosSet.has(d.bairro)));
+            const totalAtendimentos = data.reduce((sum, d) => sum + d.atendimentos, 0);
+            const aggregated = {};
             data.forEach(d => {
-                if (!by[d.bairro]) by[d.bairro] = { at: 0, pu: 0 };
-                by[d.bairro].at += d.atendimentos;
-                by[d.bairro].pu += d.pacientes_unicos;
+                if (!aggregated[d.bairro]) aggregated[d.bairro] = { at: 0, pu: 0 };
+                aggregated[d.bairro].at += d.atendimentos;
+                aggregated[d.bairro].pu += d.pacientes_unicos;
             });
-            return Object.entries(by).sort(([, a], [, b]) => b.at - a.at).slice(0, 5);
+            return Object.entries(aggregated)
+                .map(([bairro, valores]) => ({
+                    bairro,
+                    atendimentos: valores.at,
+                    pacientes: valores.pu,
+                    participacao: totalAtendimentos > 0 ? (valores.at / totalAtendimentos) : 0
+                }))
+                .sort((a, b) => b.atendimentos - a.atendimentos)
+                .slice(0, 10);
         },
         getTable: async (year, bairros = []) => {
             if (useApi) {
@@ -199,7 +255,8 @@ const Data = (() => {
             // fallback: reproduzir agregação e deltas
             const isAll = year === "Todos os anos" || !year;
             const yearNum = isAll ? null : (typeof year === 'string' ? Number(year) : year);
-            const filtered = allData.filter(d => (isAll || d.ano === yearNum) && (bairros.length === 0 || bairros.includes(d.bairro)));
+            const bairrosSet = bairros.length ? new Set(bairros) : null;
+            const filtered = allData.filter(d => (isAll || d.ano === yearNum) && (!bairrosSet || bairrosSet.has(d.bairro)));
             const aggregated = {};
             filtered.forEach(item => {
                 const key = `${item.ano}-${item.bairro}`;
@@ -212,18 +269,30 @@ const Data = (() => {
                 const serie = byBairroSerie[item.bairro] || [];
                 const current = serie.find(d => d.ano === item.ano);
                 const previous = serie.find(d => d.ano === item.ano - 1);
-                let deltaAt = "-"; let deltaAtPercent = "-";
+                let deltaAtValue = null;
+                let deltaAtPercentValue = null;
+                let deltaDirection = "na";
                 if (current && previous) {
                     const dv = current.at - previous.at;
-                    deltaAt = String(dv);
-                    deltaAtPercent = previous.at !== 0 ? `${(dv/previous.at*100).toFixed(2)}%` : "NA (sem base)";
+                    deltaAtValue = dv;
+                    deltaAtPercentValue = previous.at !== 0 ? (dv / previous.at) * 100 : null;
+                    deltaDirection = dv > 0 ? "up" : (dv < 0 ? "down" : "flat");
                 } else if (current && !previous && !isAll) {
-                    deltaAt = String(current.at);
-                    deltaAtPercent = "NA (sem base)";
+                    deltaAtValue = current.at;
+                    deltaDirection = "up";
                 }
                 const totalAt = processedData.globalTotals[item.ano]?.at || 0;
-                const participacao = totalAt > 0 ? `${(item.atendimentos/totalAt*100).toFixed(2)}%` : "0.00%";
-                return { ano: item.ano, bairro: item.bairro, atendimentos: item.atendimentos, pacientes_unicos: item.pacientes_unicos, deltaAt, deltaAtPercent, participacao };
+                const participacaoValue = totalAt > 0 ? (item.atendimentos / totalAt) * 100 : 0;
+                return {
+                    ano: item.ano,
+                    bairro: item.bairro,
+                    atendimentos: item.atendimentos,
+                    pacientes_unicos: item.pacientes_unicos,
+                    deltaAtValue,
+                    deltaAtPercentValue,
+                    deltaDirection,
+                    participacaoValue
+                };
             });
             rows.sort((a,b)=> b.ano - a.ano || b.atendimentos - a.atendimentos);
             return rows;
